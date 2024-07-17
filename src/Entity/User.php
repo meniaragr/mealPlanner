@@ -47,6 +47,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255)]
     private ?string $surname = null;
 
+    #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
+    private ?Planner $planner = null;
+
     public function __construct()
     {
         $this->recipes = new ArrayCollection();
@@ -177,6 +180,28 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setSurname(string $surname): static
     {
         $this->surname = $surname;
+
+        return $this;
+    }
+
+    public function getPlanner(): ?Planner
+    {
+        return $this->planner;
+    }
+
+    public function setPlanner(?Planner $planner): static
+    {
+        // unset the owning side of the relation if necessary
+        if ($planner === null && $this->planner !== null) {
+            $this->planner->setUser(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($planner !== null && $planner->getUser() !== $this) {
+            $planner->setUser($this);
+        }
+
+        $this->planner = $planner;
 
         return $this;
     }
