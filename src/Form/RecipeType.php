@@ -20,10 +20,10 @@ class RecipeType extends AbstractType
             ->add('description')
             ->add('cookingTime')
             ->add('calories')
-            ->add('author', EntityType::class, [
-                'class' => User::class,
-                'choice_label' => 'name',
-            ])
+            // ->add('author', EntityType::class, [
+            //     'class' => User::class,
+            //     'choice_label' => 'name',
+            // ])
             ->add('category', EntityType::class, [
                 'class' => Category::class,
                 'choice_label' => 'name',

@@ -5,8 +5,10 @@ namespace App\Controller;
 use App\Entity\Recipe;
 use App\Form\RecipeType;
 use App\Repository\RecipeRepository;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -15,10 +17,11 @@ use Symfony\Component\Routing\Attribute\Route;
 class RecipeController extends AbstractController
 {
     #[Route('/', name: 'app_recipe_index', methods: ['GET'])]
-    public function index(RecipeRepository $recipeRepository): Response
+    public function index(RecipeRepository $recipeRepository, UserRepository $userRepository): Response
     {
         return $this->render('recipe/index.html.twig', [
             'recipes' => $recipeRepository->findAll(),
+            'users' => $userRepository->findAll(),
         ]);
     }
 
@@ -30,6 +33,11 @@ class RecipeController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $user = $this->getUser();
+            if (!$user) {
+                throw new AccessDeniedException('You must be logged in to create a recipe.');
+            }
+            $recipe->setAuthor($user);
             $entityManager->persist($recipe);
             $entityManager->flush();
 
