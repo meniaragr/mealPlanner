@@ -1,11 +1,13 @@
 <?php
 
+// src/Entity/Planner.php
+
 namespace App\Entity;
 
-use App\Repository\PlannerRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\PlannerRepository;
 
 #[ORM\Entity(repositoryClass: PlannerRepository::class)]
 class Planner
@@ -18,29 +20,12 @@ class Planner
     #[ORM\OneToOne(inversedBy: 'planner', cascade: ['persist', 'remove'])]
     private ?User $user = null;
 
-    /**
-     * @var Collection<int, Week>
-     */
-    #[ORM\ManyToMany(targetEntity: Week::class)]
-    private Collection $day;
-
-    /**
-     * @var Collection<int, Recipe>
-     */
-    #[ORM\ManyToMany(targetEntity: Recipe::class)]
-    private Collection $recipe;
-
-    /**
-     * @var Collection<int, Time>
-     */
-    #[ORM\ManyToMany(targetEntity: Time::class)]
-    private Collection $time;
+    #[ORM\OneToMany(targetEntity: PlannerRecipe::class, mappedBy: 'planner', cascade: ['persist', 'remove'])]
+    private Collection $plannerRecipes;
 
     public function __construct()
     {
-        $this->day = new ArrayCollection();
-        $this->recipe = new ArrayCollection();
-        $this->time = new ArrayCollection();
+        $this->plannerRecipes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -61,74 +46,32 @@ class Planner
     }
 
     /**
-     * @return Collection<int, Week>
+     * @return Collection<int, PlannerRecipe>
      */
-    public function getDay(): Collection
+    public function getPlannerRecipes(): Collection
     {
-        return $this->day;
+        return $this->plannerRecipes;
     }
 
-    public function addDay(Week $day): static
+    public function addPlannerRecipe(PlannerRecipe $plannerRecipe): static
     {
-        if (!$this->day->contains($day)) {
-            $this->day->add($day);
+        if (!$this->plannerRecipes->contains($plannerRecipe)) {
+            $this->plannerRecipes[] = $plannerRecipe;
+            $plannerRecipe->setPlanner($this);
         }
 
         return $this;
     }
 
-    public function removeDay(Week $day): static
+    public function removePlannerRecipe(PlannerRecipe $plannerRecipe): static
     {
-        $this->day->removeElement($day);
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Recipe>
-     */
-    public function getRecipe(): Collection
-    {
-        return $this->recipe;
-    }
-
-    public function addRecipe(Recipe $recipe): static
-    {
-        if (!$this->recipe->contains($recipe)) {
-            $this->recipe->add($recipe);
+        if ($this->plannerRecipes->removeElement($plannerRecipe)) {
+            if ($plannerRecipe->getPlanner() === $this) {
+                $plannerRecipe->setPlanner(null);
+            }
         }
-
-        return $this;
-    }
-
-    public function removeRecipe(Recipe $recipe): static
-    {
-        $this->recipe->removeElement($recipe);
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Time>
-     */
-    public function getTime(): Collection
-    {
-        return $this->time;
-    }
-
-    public function addTime(Time $time): static
-    {
-        if (!$this->time->contains($time)) {
-            $this->time->add($time);
-        }
-
-        return $this;
-    }
-
-    public function removeTime(Time $time): static
-    {
-        $this->time->removeElement($time);
 
         return $this;
     }
 }
+
