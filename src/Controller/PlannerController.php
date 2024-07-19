@@ -6,7 +6,10 @@ use App\Entity\Planner;
 use App\Entity\User;
 use App\Form\PlannerType;
 use App\Repository\PlannerRepository;
+use App\Repository\RecipeRepository;
+use App\Repository\TimeRepository;
 use App\Repository\UserRepository;
+use App\Repository\WeekRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,13 +21,23 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 class PlannerController extends AbstractController
 {
     #[Route('/', name: 'app_planner', methods: ['GET'])]
-    public function index(PlannerRepository $plannerRepository, UserRepository $userRepository): Response
+    public function index(PlannerRepository $plannerRepository, UserRepository $userRepository, RecipeRepository $recipeRepository, WeekRepository $weekRepository, TimeRepository $timeRepository): Response
     {
         $this->denyAccessIfBlocked();
         $user = $this->getUser();
-
+        $days = $weekRepository->findAll();
+        $times = $timeRepository->findAll();
+        $planner = $plannerRepository->findOneBy(['user' => $user]);
+        $recipesInPlanner = [];
+        if ($planner) {
+            foreach ($planner->getPlannerRecipes() as $plannerRecipe) {
+                $recipesInPlanner[$plannerRecipe->getDay()->getId()][$plannerRecipe->getTime()->getId()][] = $plannerRecipe->getRecipe();
+            }
+        }
         return $this->render('planner/index.html.twig', [
-            'planners' => $plannerRepository->findBy(['user' => $user]),
+            'days' => $days,
+            'times' => $times,
+            'recipesInPlanner' => $recipesInPlanner,
         ]);
     }
 
