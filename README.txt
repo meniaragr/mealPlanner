@@ -1,12 +1,23 @@
-In the folder project:
-open terminal and launch: 
+### Get the Repository:
+### Open new VSCode windove and select:
+Clone git Repository 
+### Insert the link to the repository:
+https://github.com/baki2211/mealPlanner.git
+
+### In the folder project:
+### open terminal and launch: 
 composer install
-go phpmyadmin and create db with same name as in .env
-import the database from the project folder
-Edit .env file. Go to line 27 and replace the root:root with your credential
 
+### go to phpmyadmin
+### import the database from the project folder
+### Edit .env file. 
+Go to line 27 and replace the root:root with your credential
 
-### Before you start doing anything else:
+### Before you start doing anything else: //Need to do this only the first time you clone the repository
+### Create a branch to work on 
+### At the bottom corner of VSCode click on "master" and from the dropdown select:
+Create new branch from:...
+Select the master/origin
 
 ### Ensure Local Repository is Up-to-Date:
 
